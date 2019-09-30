@@ -56,35 +56,40 @@
                 $('#log').empty()
                 logName = $('#logs option:selected').text();
                 ws.send(JSON.stringify({logName:logName}));
-            })
+            });
 
 
             //  暂停
             $('#pause').click(function () {
-                out = !out
+                out = !out;
                 if (out){
                     $(this).text('暂停').css("background-color","")
                 }else{
                     $(this).text('已暂停').css("background-color","red")
                 }
-            })
+            });
 
             // 清屏
             $('#clear').click(function () {
                 $('#log').empty()
-            })
+            });
 
             // 截屏
             $('#cut').click(function () {
                 printPhoto("log")
-            })
+            });
+
+            // 截屏
+            $('#export').click(function () {
+                exportData("log")
+            });
 
             // 过滤
             $('#filter').on('input',function () {
                 filterText = $('#filter').val()
             })
 
-        })
+        });
 
 
         // 截屏
@@ -123,6 +128,29 @@
         });
         }
 
+        // 导出数据
+        function exportData(tab){
+            let text = $("#"+tab).html().replace(/<\/pre>/g,"\n").replace(/<pre style="color: white;font-size: 15px">/g,"");
+            let filename = "export_"+$("#logs").val()+".log";
+            funDownload(text, filename)
+        }
+
+        // 内容下载
+        function funDownload(content, filename) {
+            // 创建隐藏的可下载链接
+            var eleLink = document.createElement('a');
+            eleLink.download = filename;
+            eleLink.style.display = 'none';
+            // 字符内容转变成blob地址
+            var blob = new Blob([content]);
+            eleLink.href = URL.createObjectURL(blob);
+            // 触发点击
+            document.body.appendChild(eleLink);
+            eleLink.click();
+            // 然后移除
+            document.body.removeChild(eleLink);
+        }
+
     </script>
 
 </head>
@@ -141,6 +169,7 @@
         <button id="pause">暂停</button>
         <button id="clear">清屏</button>
         <button id="cut">截图</button>
+        <button id="export">导出</button>
         <span style="padding:1px;border:1px ; background:#FFF"><button style="width: auto">过滤</button><input id="filter" type="text"></span>
 
     </div>
