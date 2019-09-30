@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 	"path"
-	"runtime"
+	_ "runtime"
 	"strings"
 	"time"
 )
@@ -42,8 +42,9 @@ func server(port int, password string) {
 
 // 输出page
 func showPage(writer http.ResponseWriter, page string, data interface{}) {
-	_, currentfile, _, _ := runtime.Caller(0) // 忽略错误
-	filename := path.Join(path.Dir(currentfile), page)
+	//_, currentfile, _, _ := runtime.Caller(0) // 忽略错误
+	//filename := path.Join(path.Dir(currentfile), page)
+	filename := path.Join("./", page)
 	t, err := template.ParseFiles(filename)
 	if err != nil {
 		log.Println(err)
