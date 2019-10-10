@@ -82,6 +82,7 @@ func (c *client) recv() {
 			}
 			break
 		}
+		log.Printf("Receive: %#v", reply)
 		type recv struct {
 			LogName string `json:"logName"`
 		}
