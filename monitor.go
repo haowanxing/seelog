@@ -29,14 +29,18 @@ func monitor() {
 				log.Printf("[seelog} error:%+v", err)
 			}
 			fileInfo, _ := file.Stat()
+			fileSize := fileInfo.Size()
+			if err = file.Close(); err != nil {
+				log.Print(err)
+			}
 			t, _ := tail.TailFile(sl.Path, tail.Config{Follow: true, Location: &tail.SeekInfo{
-				Offset: fileInfo.Size(),
+				Offset: fileSize,
 				Whence: 0,
 			}})
-			file.Close()
 			for line := range t.Lines {
 				manager.broadcast <- msg{sl.Name, line.Text}
 			}
+			log.Printf("tail lines closed!")
 		}(sl)
 	}
 
