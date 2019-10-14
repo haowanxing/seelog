@@ -21,7 +21,6 @@ func monitor() {
 					log.Printf("[seelog] error:%+v", err)
 				}
 			}()
-
 			log.Println("开始进行日志监控", sl.Name, sl.Path)
 
 			file, err := os.Open(sl.Path)

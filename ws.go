@@ -3,7 +3,6 @@ package seelog
 import (
 	"encoding/json"
 	"golang.org/x/net/websocket"
-	"io"
 	"log"
 )
 
@@ -43,8 +42,7 @@ func (manager *clientManager) start() {
 			manager.clients[conn] = true
 		case conn := <-manager.unregister:
 			if _, ok := manager.clients[conn]; ok {
-				close(conn.send)
-				conn.socket.Close()
+				_ = conn.Close()
 				delete(manager.clients, conn)
 			}
 		case msg := <-manager.broadcast:
@@ -58,9 +56,7 @@ func (manager *clientManager) start() {
 }
 
 func (c *client) write() {
-
 	for msg := range c.send {
-
 		msgByte, _ := json.Marshal(msg) // 忽略错误
 		_, err := c.socket.Write(msgByte)
 		if err != nil {
@@ -69,17 +65,15 @@ func (c *client) write() {
 			break
 		}
 	}
-	log.Println("web socket closed")
+	log.Println("web socket closed. ", c.id)
 }
 
 func (c *client) recv() {
 	for {
 		var reply string
 		if err := websocket.Message.Receive(c.socket, &reply); err != nil {
-			if err != io.EOF {
-				log.Println("receive failed", err)
-				manager.unregister <- c
-			}
+			log.Println("receive failed", err)
+			manager.unregister <- c
 			break
 		}
 		log.Printf("Receive: %#v", reply)
@@ -94,4 +88,10 @@ func (c *client) recv() {
 		}
 		c.see = rcv.LogName
 	}
+}
+func (c *client) Close() (err error) {
+	close(c.send)
+	err = c.socket.Close()
+	log.Print("客户端掉线")
+	return
 }
